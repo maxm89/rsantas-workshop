@@ -29,7 +29,6 @@ pub struct SolutionQueue {
     todo_queue: Vec<OptimizationJob>,
     hist2: Vec<SolutionNode>,
     fmin: f32,
-    thres: usize,
     outdir: String,
 }
 
@@ -40,7 +39,6 @@ impl SolutionQueue {
             todo_queue: Vec::new(),
             hist2: Vec::new(),
             fmin: 0.0,
-            thres: 4600,
             outdir,
         }
     }
@@ -81,7 +79,7 @@ impl SolutionQueue {
         let mut found_similiar = false;
         for i in 0..self.hist2.len() {
             let sim = similarities[i];
-            if sim > self.thres && sim > similiar_node.0 {
+            if sim > self.threshold(new_costs) && sim > similiar_node.0 {
                 similiar_node = (sim, i);
                 found_similiar = true;
             }
@@ -152,6 +150,18 @@ impl SolutionQueue {
             res.push(fams_differ);
         }
         res
+    }
+
+    fn threshold(&self, fitness: f32) -> usize {
+        let thres: usize;
+        if fitness < 70000.0 {
+            thres = 4970;
+        } else if fitness < 71000.0 {
+            thres = 4900;
+        } else {
+            thres = 4700;
+        }
+        thres
     }
 }
 
