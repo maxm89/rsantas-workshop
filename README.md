@@ -8,7 +8,7 @@ A Iteration Local Search (ILS) method constitutes the core of the program. Start
 
 To compile and run the code, a functioning installation of cargo is required (https://github.com/rust-lang/cargo).
 
-Running the program with four threads from 500 random initial solutions, one should get results scoring < 7000 in a day.
+Running the program with four threads from 500 random initial solutions, one should get results scoring < 70,000 in a day.
 With reasonable parameters for a long run, the program can be started like:
 ```
 cargo run --release -- --nthreads 4 --ninit 500 --nreps 1 --npert 25
