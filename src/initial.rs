@@ -36,10 +36,8 @@ fn random_impl(families: &santa::FamilyData) -> santa::Solution {
     for i in 0..5000 {
         let fam = fams[i] as usize;
         let s = families.sizes[fam];
-        //println!("i: {} s: {}", i, s);
         loop {
             let day: usize = rng.gen_range(1, 101);
-            //println!("-{}", sol.occupancies[day]);
             if sol.occupancies[day] + s < 300 {
                 sol.x[fam] = day as u32;
                 sol.occupancies[day] += s;
@@ -49,7 +47,6 @@ fn random_impl(families: &santa::FamilyData) -> santa::Solution {
     }
 
     sol.costs = families.score(&sol);
-    println!("{}", sol.costs);
     sol
 }
 
