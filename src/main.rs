@@ -158,7 +158,7 @@ fn main() {
         None => {
             let mut sols: Vec<santa::Solution> = Vec::new();
             for _ in 0..ninit {
-                sols.push(initial::pseudo_greedy(&families))
+                sols.push(initial::random(&families))
             }
             sols
         }
