@@ -5,6 +5,8 @@ extern crate serde_derive;
 mod santa;
 use santa::read_families;
 mod ils;
+mod sa;
+use sa::SA;
 mod solution_queue;
 use std::env;
 mod mcs;
@@ -145,6 +147,7 @@ fn main() {
     let reps_per_sol = cmd.parse_int_or("nreps", "r", nthreads);
     let families = read_families(families_path.as_str());
     let solfile = cmd.parse_string("sol", "s");
+    let algo = cmd.parse_string_or("algorithm", "a", "mcs");
     // max. depth of moves
     let depth = cmd.parse_int_or("depth", "d", 3);
     let nperturbations = cmd.parse_int_or("npert", "p", 15);
@@ -163,13 +166,19 @@ fn main() {
             sols
         }
     };
-    let mut mcs = MonteCarloSearch::new(
-        families,
-        reps_per_sol,
-        nthreads,
-        depth,
-        outdir,
-        nperturbations,
-    );
-    mcs.optimize_multi(sols);
+    if algo == "mcs" {
+        let mut mcs = MonteCarloSearch::new(
+            families,
+            reps_per_sol,
+            nthreads,
+            depth,
+            outdir,
+            nperturbations,
+        );
+        mcs.optimize_multi(sols);
+    } else if algo == "sa" {
+        println!("sa");
+        let mut sa = SA::new(families, 5.0);
+        sa.optimize(sols[0].clone());
+    }
 }

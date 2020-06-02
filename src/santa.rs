@@ -57,6 +57,8 @@ impl FamilyData {
         let old_occb = sol.occupancies[dayb as usize];
         let new_occa = old_occa - self.sizes[fama] + self.sizes[famb];
         let new_occb = old_occb - self.sizes[famb] + self.sizes[fama];
+        //let mut involved days = 
+        //let mut delta = self.score_accounting_days(sol);
         let mut delta = self.score_accounting(sol);
         sol.occupancies[daya as usize] = new_occa;
         sol.occupancies[dayb as usize] = new_occb;

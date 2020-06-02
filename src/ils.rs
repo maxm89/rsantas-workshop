@@ -24,14 +24,17 @@ impl ILS {
         s
     }
 
-    pub fn optimize(&mut self, sol: santa::Solution, maxiter: usize) -> santa::Solution {
+    pub fn optimize(&mut self, mut sol: santa::Solution, maxiter: usize, schedule: bool) -> santa::Solution {
         let t = Instant::now();
+        if schedule {
+            sol = self.schedule_opt(sol);
+        }
         let mut bestsol = sol;
         let mut bestcosts = bestsol.costs; // TODO dont need? bestsol has costs field
         let oldcosts = bestcosts;
         let mut cursol = bestsol.clone();
         for _ in 0..maxiter {
-            let sol = self.localsearch(cursol.clone(), 2, 40);
+            let sol = self.localsearch(cursol.clone(), 2, 20);
             if sol.costs < bestcosts {
                 bestsol = sol;
                 bestcosts = bestsol.costs;
@@ -48,6 +51,32 @@ impl ILS {
             t.elapsed().as_secs()
         );
         bestsol
+    }
+
+    fn schedule_opt(&mut self, mut sol: santa::Solution) -> santa::Solution {
+        let mut weight = rand::thread_rng().gen_range(0.1, 5.0);
+        if weight > 1.0 {
+            while weight > 1.0 {
+                self.families.set_weight(weight);
+                sol = self.localsearch(sol, 2, 20);
+                weight -= 0.2;
+                if weight <= 1.0 {
+                    self.families.set_weight(1.0);
+                }
+            }
+        } else {
+            while weight < 1.0 {
+                self.families.set_weight(weight);
+                sol = self.localsearch(sol, 2, 20);
+                weight += 0.1;
+                if weight >= 1.0 {
+                    self.families.set_weight(1.0);
+                }
+            }
+        }
+        self.families.set_weight(1.0);
+        sol = self.localsearch(sol, 2, 20);
+        sol
     }
 
     fn localsearch(
@@ -117,7 +146,7 @@ impl ILS {
         let mut rng = rand::thread_rng();
         let mod_weight = rng.gen_range(0.2, 2.2);
         self.families.set_weight(mod_weight);
-        let mut newsol = self.localsearch(sol.clone(), 2, 25);
+        let mut newsol = self.localsearch(sol.clone(), 2, 10);
         self.families.set_weight(1.0);
         newsol.costs = self.families.score(&newsol);
         newsol

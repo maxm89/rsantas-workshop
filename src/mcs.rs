@@ -47,6 +47,7 @@ impl MonteCarloSearch {
             sq_lock.insert_todo(sol, self.reps_per_sol);
         }
         std::mem::drop(sq_lock);
+        let mut cnt = 10;
         loop {
             let mut thread_handles = Vec::new();
             for _ in 0..self.nthreads {
@@ -60,8 +61,14 @@ impl MonteCarloSearch {
                 let npert = self.nperturbations;
                 thread_handles.push(thread::spawn(move || {
                     loop {
+                        let new_sol;
                         let mut ils = ils::ILS::new(fams.clone(), move_depth);
-                        let new_sol = ils.optimize(sol.clone(), npert);
+                        if cnt > 0 {
+                            new_sol = ils.optimize(sol.clone(), npert, true);
+                            cnt -= 1;
+                        } else {
+                            new_sol = ils.optimize(sol.clone(), npert, false);
+                        }
                         // when optimization is completed, write solution to history
                         let mut sq_lock = sq.lock().unwrap();
                         sq_lock.insert_history(new_sol);
