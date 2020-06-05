@@ -8,6 +8,7 @@ pub struct ILS {
     families_per_day: Vec<Vec<usize>>,
     all_fams: Vec<usize>,
     move_depth: usize,
+    max_choice: usize,
 }
 
 impl ILS {
@@ -17,6 +18,7 @@ impl ILS {
             families_per_day: vec![Vec::new(); 101],
             all_fams: Vec::new(),
             move_depth,
+            max_choice: rand::thread_rng().gen_range(3, 10),
         };
         for i in 0..5000 {
             s.all_fams.push(i);
@@ -161,7 +163,7 @@ impl ILS {
     fn pick_alternative(&self, x: u32, xi: u32) -> u32 {
         let mut rng = rand::thread_rng();
         loop {
-            let xji = rng.gen_range(0, 5);
+            let xji = rng.gen_range(0, self.max_choice);
             let xnew = self.families.choices[x as usize][xji];
             if xnew != xi {
                 return xnew;
