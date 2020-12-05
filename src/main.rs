@@ -13,6 +13,9 @@ mod mcs;
 use mcs::MonteCarloSearch;
 mod initial;
 use std::path::Path;
+use crate::tabu_search::TabuSearch;
+
+mod tabu_search;
 
 fn welcome() {
     println!("");
@@ -166,6 +169,8 @@ fn main() {
             sols
         }
     };
+
+    //match algo
     if algo == "mcs" {
         let mut mcs = MonteCarloSearch::new(
             families,
@@ -178,7 +183,10 @@ fn main() {
         mcs.optimize_multi(sols);
     } else if algo == "sa" {
         println!("sa");
-        let mut sa = SA::new(families, 5.0);
+        let mut sa = SA::new(families, 5.0, 1000000);
         sa.optimize(sols[0].clone());
+    } else if algo == "tabu" {
+        let mut tabu_search = TabuSearch::new(families);
+        tabu_search.optimize();
     }
 }

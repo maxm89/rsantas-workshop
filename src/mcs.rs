@@ -71,7 +71,7 @@ impl MonteCarloSearch {
                         }
                         // when optimization is completed, write solution to history
                         let mut sq_lock = sq.lock().unwrap();
-                        sq_lock.insert_history(new_sol);
+                        sq_lock.insert_history(new_sol); // TODO if is already there, increase count and invalidate after x
                         sol = sq_lock.select();
                     }
                 }));
@@ -82,5 +82,7 @@ impl MonteCarloSearch {
         }
     }
 
-    pub fn print_config(&self) {}
+    pub fn print_config(&self) {
+
+    }
 }

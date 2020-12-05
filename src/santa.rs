@@ -36,7 +36,14 @@ impl FamilyData {
         costs
     }
 
-    //pub fn split_score(&self, sol: &Solution) -> (f32, f32, f32) {}
+    pub fn split_score(&self, sol: &Solution) -> (f32, f32, f32) {
+        let mut costs: f32 = 0.0;
+
+        let pcosts = self.score_penalty(sol);
+        let acosts = self.score_accounting(sol) * self.weight;
+
+        (costs, pcosts, acosts)
+    }
 
     pub fn set_weight(&mut self, weight: f32) {
         self.weight = weight;
@@ -205,6 +212,27 @@ impl Solution {
         deltaa + deltap
     }
 
+    /// value > 0 indicates improvement
+    pub fn score_move_split(&mut self, families: &FamilyData, m: &Move) -> (f32, f32, f32) {
+        // TODO delta accounting
+        let mut deltap = 0.0;
+        let mut deltaa = families.score_accounting(self) * families.weight;
+        for ind in 0..m.candidates.len() {
+            let fam: usize = m.candidates[ind] as usize;
+            deltap += families.penalty(fam, self.x[fam]);
+            deltap -= families.penalty(fam, m.new_days[ind]);
+            self.occupancies[m.old_days[ind] as usize] -= families.sizes[fam];
+            self.occupancies[m.new_days[ind] as usize] += families.sizes[fam];
+        }
+        deltaa -= families.score_accounting(self) * families.weight;
+        for ind in 0..m.candidates.len() {
+            let fam: usize = m.candidates[ind] as usize;
+            self.occupancies[m.old_days[ind] as usize] += families.sizes[fam];
+            self.occupancies[m.new_days[ind] as usize] -= families.sizes[fam];
+        }
+        (deltaa + deltap, deltap, deltaa)
+    }
+
     /// returns the new score of self
     pub fn apply_move(&mut self, families: &FamilyData, m: &Move) -> f32 {
         for ind in 0..m.candidates.len() {
@@ -216,6 +244,16 @@ impl Solution {
         let new_costs = families.score(self);
         self.costs = new_costs;
         new_costs
+    }
+
+    pub fn new_occs(&self, families: &FamilyData, m: &Move) -> Vec<i32> {
+        let mut occs = self.occupancies.clone();
+        for ind in 0..m.candidates.len() {
+            let fam: usize = m.candidates[ind] as usize;
+            occs[m.old_days[ind] as usize] -= families.sizes[fam];
+            occs[m.new_days[ind] as usize] += families.sizes[fam];
+        }
+        occs
     }
 
     pub fn move_feasible(&mut self, families: &FamilyData, m: &Move) -> bool {

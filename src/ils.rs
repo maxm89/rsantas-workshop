@@ -18,7 +18,7 @@ impl ILS {
             families_per_day: vec![Vec::new(); 101],
             all_fams: Vec::new(),
             move_depth,
-            max_choice: rand::thread_rng().gen_range(3, 10),
+            max_choice: rand::thread_rng().gen_range(6, 10),
         };
         for i in 0..5000 {
             s.all_fams.push(i);

@@ -6,11 +6,16 @@ use rand::thread_rng;
 struct SolutionNode {
     sol: santa::Solution,
     visited: usize,
+    id: usize,
+    not_improved_for: usize,
 }
 
 impl SolutionNode {
     fn new(sol: santa::Solution) -> Self {
-        Self { sol, visited: 0 }
+        Self { sol, visited: 0, id:0, not_improved_for:0 }
+    }
+    fn new_with_id(sol: santa::Solution, id: usize) -> Self {
+        Self { sol, visited: 0, id, not_improved_for:0 }
     }
 }
 
@@ -30,6 +35,7 @@ pub struct SolutionQueue {
     hist2: Vec<SolutionNode>,
     fmin: f32,
     outdir: String,
+    id_cnt: usize,
 }
 
 ///
@@ -40,10 +46,11 @@ impl SolutionQueue {
             hist2: Vec::new(),
             fmin: 0.0,
             outdir,
+            id_cnt: 0,
         }
     }
     /// Draw a solution from past solution candidates proportional to fitness rank and
-    /// times visited to trade off exploitation and exploration.
+    /// times visited to trade of exploitation and exploration.
     fn sample_history(&mut self) -> santa::Solution {
         let ind: Vec<usize> = (0..self.hist2.len()).collect();
         let visits: Vec<usize> = self.hist2.iter().map(|node| node.visited).collect();
@@ -157,9 +164,9 @@ impl SolutionQueue {
         if fitness < 70000.0 {
             thres = 4970;
         } else if fitness < 71000.0 {
-            thres = 4900;
+            thres = 4960;
         } else {
-            thres = 4700;
+            thres = 4800;
         }
         thres
     }
