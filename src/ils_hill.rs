@@ -18,7 +18,7 @@ impl ILS {
             families_per_day: vec![Vec::new(); 101],
             all_fams: Vec::new(),
             move_depth,
-            max_choice: rand::thread_rng().gen_range(2, 10),
+            max_choice: rand::thread_rng().gen_range(6, 10),
         };
         for i in 0..5000 {
             s.all_fams.push(i);
@@ -42,7 +42,7 @@ impl ILS {
                 bestcosts = bestsol.costs;
                 cursol = bestsol.clone();
             } else {
-                cursol = bestsol.clone(); // TODO speed...
+                cursol = bestsol.clone();
             }
             cursol = self.perturbate(&mut cursol);
         }

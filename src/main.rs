@@ -5,17 +5,18 @@ extern crate serde_derive;
 mod santa;
 use santa::read_families;
 mod ils;
-mod sa;
-use sa::SA;
+use ils::ILS;
+//mod sa;
+//use sa::SA;
 mod solution_queue;
 use std::env;
 mod mcs;
 use mcs::MonteCarloSearch;
 mod initial;
 use std::path::Path;
-use crate::tabu_search::TabuSearch;
+//use crate::tabu_search::TabuSearch;
 
-mod tabu_search;
+//mod tabu_search;
 
 fn welcome() {
     println!("");
@@ -181,12 +182,9 @@ fn main() {
             nperturbations,
         );
         mcs.optimize_multi(sols);
-    } else if algo == "sa" {
-        println!("sa");
-        let mut sa = SA::new(families, 5.0, 1000000);
-        sa.optimize(sols[0].clone());
-    } else if algo == "tabu" {
-        let mut tabu_search = TabuSearch::new(families);
-        tabu_search.optimize();
+    } else if algo == "ils" {
+        let mut ils = ILS::new(families, 2);
+        ils.optimize(sols[0].clone(), 1, false);
     }
+
 }

@@ -1,7 +1,7 @@
 use crate::santa;
+use crate::santa::Move;
 use rand::seq::SliceRandom;
 use rand::Rng;
-use crate::santa::Move;
 use std::collections::VecDeque;
 
 pub struct SA {
@@ -23,7 +23,7 @@ impl SA {
             init_temperature,
             temperature: init_temperature,
             tabu: TabuList::new(1),
-            maxiter
+            maxiter,
         };
         for i in 0..5000 {
             s.all_fams.push(i);
@@ -44,7 +44,7 @@ impl SA {
                 no_improve_cnt = 0;
             } else {
                 no_improve_cnt += 1;
-                if no_improve_cnt >=20 {
+                if no_improve_cnt >= 20 {
                     //println!("reset");
                     self.temperature = self.init_temperature;
                     cursol = bestsol.clone();
@@ -56,7 +56,7 @@ impl SA {
                 println!("---> c: {}", bestsol.costs);
             }
         }
-        return bestsol
+        return bestsol;
     }
 
     pub fn set_tabu(&mut self, tabu: TabuList) {
@@ -89,9 +89,9 @@ impl SA {
             m.old_days.push(xi);
             let xj = self.pick_alternative(x, xi);
             m.new_days.push(xj);
-            if sol.move_feasible(&self.families, &m)  {
+            if sol.move_feasible(&self.families, &m) {
                 let delta = sol.score_move(&self.families, &m);
-                if  delta > 0.0 || (ind > 1 && self.accept(delta)) {
+                if delta > 0.0 || (ind > 1 && self.accept(delta)) {
                     let new_occs = sol.new_occs(&self.families, &m);
                     if self.tabu.already_visited(&new_occs) {
                         return false;
@@ -127,7 +127,6 @@ impl SA {
         } else {
             return false;
         }
-
     }
 
     fn perturbate(&mut self, sol: &mut santa::Solution) -> santa::Solution {
@@ -184,7 +183,6 @@ impl SA {
                 }
             }
         }
-
     }
 
     fn pick_from_day(&self, xj: u32) -> u32 {
@@ -193,18 +191,15 @@ impl SA {
         self.families_per_day[xj as usize][fnew_ind] as u32
     }
 
-
     // pick alternative from choices or from adjacent days
     fn pick_alternative(&self, x: u32, xi: u32) -> u32 {
         let mut rng = rand::thread_rng();
         loop {
-                let xji = rng.gen_range(0, 5);
-                let xnew = self.families.choices[x as usize][xji];
-                if xnew != xi {
-                    return xnew;
-                }
-            
-
+            let xji = rng.gen_range(0, 5);
+            let xnew = self.families.choices[x as usize][xji];
+            if xnew != xi {
+                return xnew;
+            }
         }
     }
 
@@ -219,7 +214,7 @@ impl SA {
 
 #[derive(Clone)]
 pub struct TabuList {
-    visited: VecDeque<Vec<i32>>,
+    visited: VecDeque<TabuItem>,
     nmax: usize,
 }
 
@@ -231,26 +226,24 @@ impl TabuList {
         }
     }
 
-    fn add(&mut self, occs: &Vec<i32>) {
-        if !self.already_visited(&occs) {
-            self.visited.push_front(occs.clone());
+    // TODO entire solutions and approximate
+    fn add(&mut self, item: TabuItem) {
+        if !self.already_visited(&item) {
+            self.visited.push_front(item);
             //println!("Added to tabu list");
             if self.visited.len() > self.nmax {
                 self.visited.pop_back();
             }
-
         }
     }
 
     // TODO occupancies archive!!!
-    // TODO or copy tabu list afterwards and start new search based on it!!!
-    fn already_visited(&self, occs: &Vec<i32>) -> bool {
+    fn already_visited(&self, item: &TabuItem) -> bool {
         // TODO binary search
-        let visited = self.visited.iter().any(|x| x == occs);
+        let visited = self.visited.iter().any(|x| x == item);
         if visited {
             println!("Been here before");
         }
         visited
-
     }
 }
